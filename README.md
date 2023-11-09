@@ -385,16 +385,26 @@ green  open   .geoip_databases jWDiQ8eqQRiVWvU33wfwzQ   1   0         41        
 green  open   test2            arF-jGwuTzC5KaxPsFpMow   1   0          0            0       227b           227b
 ```
 
-- 
+- Я решил вытащить только удаленный индекс, и сделал это вот так:
 
-
-
-
+```
+root@elastic:/home/vagrant# curl -X POST "localhost:9200/_snapshot/netology_backup/my_snapshot/_restore?pretty" -H 'Content-Type: application/json' -d'
+> {
+>   "indices": "test",
+>   "include_global_state": false
+>
+> }
+> '
+{
+  "accepted" : true
+}
+root@elastic:/home/vagrant# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases jWDiQ8eqQRiVWvU33wfwzQ   1   0         41            0     38.2mb         38.2mb
+green  open   test2            arF-jGwuTzC5KaxPsFpMow   1   0          0            0       227b           227b
+green  open   test             dOdV_AOVRXi6EVL7rXez3Q   1   0          0            0       227b           227b
+```
 
 ---
 
-### Как cдавать задание
 
-Выполненное домашнее задание пришлите ссылкой на .md-файл в вашем репозитории.
-
----
