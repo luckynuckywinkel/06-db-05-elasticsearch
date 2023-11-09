@@ -363,7 +363,30 @@ green  open   .geoip_databases jWDiQ8eqQRiVWvU33wfwzQ   1   0         41        
 green  open   test             cuZ1JqaxSxOkMCuTBWDR6g   1   0          0            0       227b           227b
 ```
 
+- Удалим прервый индекс и создадим второй:
+
+```
+root@elastic:/home/vagrant# curl -X PUT "localhost:9200/test2?pretty" -H 'Content-Type: application/json' -d'
+> {
+>   "settings": {
+>     "number_of_shards": 1,
+>     "number_of_replicas": 0
+>   }
+> }
+> '
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "test2"
+}
+root@elastic:/home/vagrant# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases jWDiQ8eqQRiVWvU33wfwzQ   1   0         41            0     38.2mb         38.2mb
+green  open   test2            arF-jGwuTzC5KaxPsFpMow   1   0          0            0       227b           227b
+```
+
 - 
+
 
 
 
