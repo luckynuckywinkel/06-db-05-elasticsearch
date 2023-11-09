@@ -67,7 +67,7 @@ CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
 
 - Ссылка на запушенный image:
 
-**https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general**   
+**https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general**   - стабильный образ - 1.3
 
 - Ответ от курла:
 
@@ -90,6 +90,28 @@ root@elastic:/home/vagrant/elastic_docker_project# curl http://localhost:9200/
   },
   "tagline" : "You Know, for Search"
 }
+```
+
+- Вывод статуса кластера:
+
+```
+root@elastic:/home/vagrant/elastic_docker_project# curl -XGET 'localhost:9200/_cluster/health?pretty'
+{
+  "cluster_name" : "lebedev_cluster",
+  "status" : "green",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 3,
+  "active_shards" : 3,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 0,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 100.0
 ```
 
 ---
