@@ -146,7 +146,72 @@ root@elastic:/home/vagrant/elastic_docker_project# curl -XGET 'localhost:9200/_c
 **Важно**
 
 При проектировании кластера Elasticsearch нужно корректно рассчитывать количество реплик и шард,
-иначе возможна потеря данных индексов, вплоть до полной, при деградации системы.
+иначе возможна потеря данных индексов, вплоть до полной, при деградации системы.  
+
+### Решение:  
+
+- Добавим три индекса, руководствуясь таблицей выше и проверим статус:
+
+```
+root@elastic:/home/vagrant/elastic_docker_project# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases kIWNmifFRtiOJpcuF0FIiw   1   0         41            0     38.2mb         38.2mb
+yellow open   my-index-000003  GBD7q_GgS7O3iF27f9YrXA   4   2          0            0       908b           908b
+yellow open   my-index-000002  FxbUwU3NS3mH7kDfZ4wyuA   2   1          0            0       454b           454b
+green  open   my-index-000001  mx7k4tlzQBCxM50SMPLYdg   1   0          0            0       227b           227b
+```
+
+- Еще раз проверим состояние кластера:
+
+```
+root@elastic:/home/vagrant/elastic_docker_project# curl -XGET 'localhost:9200/_cluster/health?pretty'
+{
+  "cluster_name" : "lebedev_cluster",
+  "status" : "yellow",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 10,
+  "active_shards" : 10,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 10,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 50.0
+```
+
+- Часть индексов и состояние кластера "пожелтели" ввиду того, что у нас сингл-нода, что противоречит нашей логике при создании такого количества реплик и шардов. Зеленый - только первый индекс и это правильно.
+
+- Удалим все созданные нами индексы:
+
+```
+root@elastic:/home/vagrant/elastic_docker_project# curl -XDELETE "localhost:9200/my-index-000001?pretty"
+{
+  "acknowledged" : true
+}
+root@elastic:/home/vagrant/elastic_docker_project# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases kIWNmifFRtiOJpcuF0FIiw   1   0         41            0     38.2mb         38.2mb
+yellow open   my-index-000003  GBD7q_GgS7O3iF27f9YrXA   4   2          0            0       908b           908b
+yellow open   my-index-000002  FxbUwU3NS3mH7kDfZ4wyuA   2   1          0            0       454b           454b
+root@elastic:/home/vagrant/elastic_docker_project# curl -XDELETE "localhost:9200/my-index-000002?pretty"
+{
+  "acknowledged" : true
+}
+root@elastic:/home/vagrant/elastic_docker_project# curl -XDELETE "localhost:9200/my-index-000003?pretty"
+{
+  "acknowledged" : true
+}
+root@elastic:/home/vagrant/elastic_docker_project# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases kIWNmifFRtiOJpcuF0FIiw   1   0         41            0     38.2mb         38.2mb
+root@elastic:/home/vagrant/elastic_docker_project#
+```
+
+---
 
 ## Задача 3
 
