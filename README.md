@@ -68,7 +68,7 @@ CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
 
 - Ссылка на запушенный image:
 
-[a href] https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general [/a]
+**https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general** 
 
 
 ## Задача 2
