@@ -35,7 +35,6 @@
 
 Далее мы будем работать с этим экземпляром Elasticsearch.  
 
----  
 
 ### Решение:  
 
@@ -68,7 +67,33 @@ CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
 
 - Ссылка на запушенный image:
 
-**https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general** 
+**https://hub.docker.com/repository/docker/luckynucky/elastic-fixed/general**   
+
+- Ответ от курла:
+
+```
+root@elastic:/home/vagrant/elastic_docker_project# curl http://localhost:9200/
+{
+  "name" : "netology_test",
+  "cluster_name" : "lebedev_cluster",
+  "cluster_uuid" : "_na_",
+  "version" : {
+    "number" : "7.17.14",
+    "build_flavor" : "default",
+    "build_type" : "rpm",
+    "build_hash" : "774e3bfa4d52e2834e4d9d8d669d77e4e5c1017f",
+    "build_date" : "2023-10-05T22:17:33.780167078Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.11.1",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+---
+
 
 
 ## Задача 2
