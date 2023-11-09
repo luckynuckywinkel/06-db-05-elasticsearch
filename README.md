@@ -245,6 +245,129 @@ root@elastic:/home/vagrant/elastic_docker_project#
 
 - возможно, вам понадобится доработать `elasticsearch.yml` в части директивы `path.repo` и перезапустить `Elasticsearch`.
 
+### Решение:  
+
+- Выполнение данного задания, также, заняло у меня много времени. Для начала, пришлось подкорректировать доккерфайл, elasticsearch.yaml и пересобрать образ.
+
+- Каталог для backup'а был создан по пути: /etc/elasticsearch/snapshots
+
+- Вводим настройки:
+
+```
+root@elastic:/home/vagrant# curl -X PUT "localhost:9200/_snapshot/netology_backup?verify=false&pretty" -H 'Content-Type: application/json' -d'
+> {
+>   "type": "fs",
+>   "settings": {
+>     "location": "/etc/elasticsearch/snapshots"
+>   }
+> }
+> '
+{
+  "acknowledged" : true
+}
+```
+
+- Верифицируем:
+
+```
+root@elastic:/home/vagrant# curl -X POST "localhost:9200/_snapshot/netology_backup/_verify?pretty"
+{
+  "nodes" : {
+    "1eLukXEVRuS28ypFIj6zYw" : {
+      "name" : "netology_test"
+    }
+  }
+}
+```
+
+- Делаем полный снапшот:
+
+```
+root@elastic:/home/vagrant# curl -X PUT "localhost:9200/_snapshot/netology_backup/my_snapshot?wait_for_completion=true&pretty"
+{
+  "snapshot" : {
+    "snapshot" : "my_snapshot",
+    "uuid" : "IbhVZ5KjRMGc5bb2jyOc-A",
+    "repository" : "netology_backup",
+    "version_id" : 7171499,
+    "version" : "7.17.14",
+    "indices" : [
+      ".ds-.logs-deprecation.elasticsearch-default-2023.11.09-000001",
+      "test",
+      ".ds-ilm-history-5-2023.11.09-000001",
+      ".geoip_databases"
+    ],
+    "data_streams" : [
+      "ilm-history-5",
+      ".logs-deprecation.elasticsearch-default"
+    ],
+    "include_global_state" : true,
+    "state" : "SUCCESS",
+    "start_time" : "2023-11-09T14:11:32.393Z",
+    "start_time_in_millis" : 1699539092393,
+    "end_time" : "2023-11-09T14:11:32.593Z",
+    "end_time_in_millis" : 1699539092593,
+    "duration_in_millis" : 200,
+    "failures" : [ ],
+    "shards" : {
+      "total" : 4,
+      "failed" : 0,
+      "successful" : 4
+    },
+    "feature_states" : [
+      {
+        "feature_name" : "geoip",
+        "indices" : [
+          ".geoip_databases"
+        ]
+      }
+    ]
+  }
+}
+```
+
+- Можем даже сходить в доккер и посмотреть в папку со снапшотами:
+
+```
+root@elastic:/home/vagrant# docker exec -it -u root 09841c63a7f7 /bin/sh
+sh-4.2# cd /etc/elasticsearch/snapshots/
+sh-4.2# ls -lai
+total 96
+3147911 drwxrwsr-x 1 root          elasticsearch  4096 Nov  9 14:11 .
+3147914 drwxr-s--- 1 root          elasticsearch  4096 Nov  9 12:57 ..
+3148216 -rw-r--r-- 1 elasticsearch elasticsearch  1972 Nov  9 14:11 index-1
+3148217 -rw-r--r-- 1 elasticsearch elasticsearch     8 Nov  9 14:11 index.latest
+3148139 drwxr-sr-x 6 elasticsearch elasticsearch  4096 Nov  9 14:08 indices
+3148210 -rw-r--r-- 1 elasticsearch elasticsearch 29303 Nov  9 14:11 meta-IbhVZ5KjRMGc5bb2jyOc-A.dat
+3148190 -rw-r--r-- 1 elasticsearch elasticsearch 29303 Nov  9 14:08 meta-VJ5Cj3h4RnGZZsLlnDFBBQ.dat
+3148218 -rw-r--r-- 1 elasticsearch elasticsearch   710 Nov  9 14:11 snap-IbhVZ5KjRMGc5bb2jyOc-A.dat
+3148208 -rw-r--r-- 1 elasticsearch elasticsearch   721 Nov  9 14:08 snap-VJ5Cj3h4RnGZZsLlnDFBBQ.dat
+```
+
+- По итогу, я сделал несколько снапшотов разными способами:
+
+```
+root@elastic:/home/vagrant# curl -X GET "localhost:9200/_cat/snapshots/netology_backup?v=true&s=id&pretty"
+id                     repository       status start_epoch start_time end_epoch  end_time duration indices successful_shards failed_shards total_shards
+my_snapshot            netology_backup SUCCESS 1699539092  14:11:32   1699539092 14:11:32    200ms       4                 4             0            4
+my_snapshot_2023.11.09 netology_backup SUCCESS 1699538910  14:08:30   1699538912 14:08:32     1.4s       4                 4             0            4
+root@elastic:/home/vagrant#
+```
+
+- Ну и посмотрим индексы на данный момент:
+
+```
+root@elastic:/home/vagrant# curl 'localhost:9200/_cat/indices?v&pretty'
+health status index            uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   .geoip_databases jWDiQ8eqQRiVWvU33wfwzQ   1   0         41            0     38.2mb         38.2mb
+green  open   test             cuZ1JqaxSxOkMCuTBWDR6g   1   0          0            0       227b           227b
+```
+
+- 
+
+
+
+
 ---
 
 ### Как cдавать задание
